@@ -47,7 +47,13 @@ export default function Login() {
       login({ ...userData, role }, token)
       navigate(role === 'ADMIN' ? '/orders' : '/menu')
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed. Check credentials.')
+      if (err.code === 'ERR_NETWORK' || !err.response) {
+        setError('Cannot connect to server. Make sure the backend is running on port 8080.')
+      } else if (err.response?.status === 401) {
+        setError('Wrong email or password.')
+      } else {
+        setError(err.response?.data?.message || 'Login failed. Try again.')
+      }
     } finally {
       setLoading(false)
     }
